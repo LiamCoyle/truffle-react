@@ -5,11 +5,11 @@ pragma solidity >=0.7.0 <0.9.0;
 contract SimpleStorage {
   uint value;
 
-  event storedDataChange(uint value); 
+  event isSet(uint value); 
 
   function set(uint x) public {
     value = x;
-    emit storedDataChange(value);
+    emit isSet(value);
   }
 
   function get() public view returns (uint) {
