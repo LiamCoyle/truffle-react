@@ -5,7 +5,13 @@ import getWeb3 from "./getWeb3";
 import "./App.css";
 
 class App extends Component {
-  state = { storageValue: 0, web3: null, accounts: null, contract: null };
+  state = {
+    storageValue: 0,
+    web3: null,
+    accounts: null,
+    contract: null,
+    eventValue: 0,
+  };
 
   componentDidMount = async () => {
     try {
@@ -25,7 +31,7 @@ class App extends Component {
 
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance }, this.runExample);
+      this.setState({ web3, accounts, contract: instance });
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -38,33 +44,18 @@ class App extends Component {
   runExample = async () => {
     const { accounts, contract } = this.state;
 
+    // Stores a given value, 5 by default.
+    let valueTyped = document.getElementById("inputValue").value;
+    const objet = await contract.methods
+      .set(valueTyped)
+      .send({ from: accounts[0] });
+    console.log(objet);
+    let valueEvent = objet.events.isSet.returnValues.value;
     // Get the value from the contract to prove it worked.
     const response = await contract.methods.get().call();
 
     // Update state with the result.
-    this.setState({ storageValue: response });
-  };
-
-  handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const { accounts, contract } = this.state;
-    // Stores a given value, 5 by default.
-    const setResponse = await contract.methods
-      .set(this.state.storageValue)
-      .send({ from: accounts[0] });
-    console.log(
-      "contrat set response ",
-      setResponse.events.storedDataChange.returnValues
-    );
-    const response = await contract.methods.get().call();
-    console.log("contrat get response : " + response);
-    this.setState({ storageValue: response });
-  };
-
-  handleChange = async (e) => {
-    console.log(e.target.value);
-    this.setState({ storageValue: e.target.value });
+    this.setState({ storageValue: response, eventValue: valueEvent });
   };
 
   render() {
@@ -76,24 +67,17 @@ class App extends Component {
         <h1>Good to Go!</h1>
         <p>Your Truffle Box is installed and ready.</p>
         <h2>Smart Contract Example</h2>
-
-        <div>
-          {
-            <form onSubmit={this.handleSubmit} className="form">
-              <label>
-                Choose a value:
-                <input
-                  type="number"
-                  ref={this.state.storageValue}
-                  onChange={this.handleChange}
-                  className="input"
-                />
-              </label>
-              <input type="submit" value="Submit" className="button" />
-            </form>
-          }
-        </div>
+        <p>
+          If your contracts compiled and migrated successfully, below will show
+          a stored value of 5 (by default).
+        </p>
+        <p>
+          Try changing the value stored on <strong>line 42</strong> of App.js.
+        </p>
         <div>The stored value is: {this.state.storageValue}</div>
+        <input id="inputValue" type="text" />
+        <button onClick={this.runExample}>Envoyer valeur</button>
+        <div>The stored value is: {this.state.eventValue}</div>
       </div>
     );
   }
