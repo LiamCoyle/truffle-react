@@ -50,7 +50,7 @@ class App extends Component {
       .set(valueTyped)
       .send({ from: accounts[0] });
     console.log(objet);
-    let valueEvent = objet.events.isSet.returnValues.value;
+    let valueEvent = objet.events.storedDataChange.returnValues.value;
     // Get the value from the contract to prove it worked.
     const response = await contract.methods.get().call();
 
